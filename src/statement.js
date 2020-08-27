@@ -30,13 +30,15 @@ function updateVolumeCredits(performance, play) {
   return volumeCredits;
 }
 
-function renderResult(data) {
-  const format = new Intl.NumberFormat("en-US", {
+function format (data) {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
-  }).format;
+  }).format(data);
+}
 
+function renderResult(data) {
   let result = `Statement for ${data.customer}\n`;
   data.performances.forEach((e) => {
     result += ` ${e.playName}: ${format(e.thisAmount / 100)} (${
@@ -50,7 +52,26 @@ function renderResult(data) {
   return result;
 }
 
-function statement(invoice, plays) {
+function statementHtml(invoice, plays) {
+  const data = createStatementData(invoice, plays)
+  return 
+}
+
+function renderHtml(data) {
+  let result = `Statement for ${data.customer}\n`;
+  data.performances.forEach((e) => {
+    result += ` ${e.playName}: ${format(e.thisAmount / 100)} (${
+      e.audience
+    } seats)\n`;
+  });
+
+  result += `Amount owed is ${format(data.totalAmount / 100)}\n`;
+  result += `You earned ${data.volumeCredits} credits \n`;
+
+  return result;
+}
+
+function createStatementData (invoice, plays) {
   let data = {
     customer: invoice.customer,
     totalAmount: 0,
@@ -69,7 +90,10 @@ function statement(invoice, plays) {
 
   data.totalAmount = data.performances.reduce((total, perf) => total + perf.thisAmount, 0);
   data.volumeCredits = data.performances.reduce((total, perf) => total + perf.thisVolumeCredits, 0);
-  
+}
+
+function statement(invoice, plays) {
+  const data = createStatementData(invoice, plays)
   return renderResult(data);
 }
 
