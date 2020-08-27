@@ -1,14 +1,14 @@
-function getAmountByTypeAndAudience (performance) {
+function getAmountByTypeAndAudience(performance) {
   let thisAmount = 0;
   switch (performance.play.type) {
-    case 'tragedy':
+    case "tragedy":
       thisAmount = 40000;
       if (performance.audience > 30) {
         thisAmount += 1000 * (performance.audience - 30);
       }
       break;
-    case 'comedy':
-      thisAmount=30000;
+    case "comedy":
+      thisAmount = 30000;
       if (performance.audience > 20) {
         thisAmount += 10000 + 500 * (performance.audience - 20);
       }
@@ -20,37 +20,54 @@ function getAmountByTypeAndAudience (performance) {
   return thisAmount;
 }
 
-function updateVolumeCredits (performance, volumeCredits) {
-
+function updateVolumeCredits(performance, volumeCredits) {
   volumeCredits += Math.max(performance.audience - 30, 0);
 
-  if ('comedy' === performance.play.type) volumeCredits += Math.floor(performance.audience / 5);
+  if ("comedy" === performance.play.type)
+    volumeCredits += Math.floor(performance.audience / 5);
 
   return volumeCredits;
 }
- 
-function statement (invoice, plays) {
-  let totalAmount = 0;
-  let volumeCredits = 0;
-  let result = `Statement for ${invoice.customer}\n`;
-  const format = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+
+function renderResult(data) {
+  const format = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
   }).format;
 
+  let result = `Statement for ${data.customer}\n`;
+  data.performances.forEach((e) => {
+    console.log(e);
+    result += ` ${e.play.name}: ${format(e.thisAmount / 100)} (${
+      e.audience
+    } seats)\n`;
+  });
+
+  result += `Amount owed is ${format(data.totalAmount / 100)}\n`;
+  result += `You earned ${data.volumeCredits} credits \n`;
+
+  return result;
+}
+
+function statement(invoice, plays) {
+  let data = {
+    customer: invoice.customer,
+    totalAmount: 0,
+    volumeCredits: 0,
+    performances: [],
+  };
+
   for (let perf of invoice.performances) {
     perf.play = plays[perf.playID];
-    const thisAmount = getAmountByTypeAndAudience(perf)
+    perf.thisAmount = getAmountByTypeAndAudience(perf);
 
-    volumeCredits = updateVolumeCredits(perf, volumeCredits);
-
-    result += ` ${perf.play.name}: ${format(thisAmount / 100)} (${perf.audience} seats)\n`;
-    totalAmount += thisAmount;
+    data.volumeCredits = updateVolumeCredits(perf, data.volumeCredits);
+    data.performances.push(perf);
+    data.totalAmount += perf.thisAmount;
   }
-  result += `Amount owed is ${format(totalAmount / 100)}\n`;
-  result += `You earned ${volumeCredits} credits \n`;
-  return result;
+
+  return renderResult(data);
 }
 
 module.exports = {
