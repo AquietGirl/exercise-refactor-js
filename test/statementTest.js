@@ -152,3 +152,30 @@ test('Customer BigCo has one performance As You Like It and the audience is 20',
   t.is(result, expect);
 });
 
+test('Customer BigCo has other type performance', t => {
+  //given
+  const plays = {
+    'other-type': {
+      'name': 'Other Type',
+      'type': 'otherType',
+    },
+  };
+  const invoice = {
+    'customer': 'BigCo',
+    'performances': [
+      {
+        'playID': 'other-type',
+        'audience': 20,
+      }
+    ],
+  };
+
+  //when
+  try {
+    statement(invoice, plays);
+    t.fail();
+  } catch(e) {
+    t.is(e.message, 'unknown type: otherType')
+  }
+});
+
