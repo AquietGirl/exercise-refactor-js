@@ -1,5 +1,5 @@
 const test = require('ava');
-const {statement} = require('../src/statement');
+const {statement, statementHtml} = require('../src/statement');
 
 const plays = {
   'hamlet': {

@@ -53,20 +53,22 @@ function renderResult(data) {
 }
 
 function statementHtml(invoice, plays) {
-  const data = createStatementData(invoice, plays)
-  return 
+  const data = createStatementData(invoice, plays);
+  console.log(data);
+  return renderHtml(data);
 }
 
 function renderHtml(data) {
-  let result = `Statement for ${data.customer}\n`;
+  console.log(data);
+  let result = `<h1>Statement for ${data.customer}</h1>\n`+
+   `<table>\n` + 
+   `<tr><th>play</th><th>seats</th><th>cost</th></tr>`;
   data.performances.forEach((e) => {
-    result += ` ${e.playName}: ${format(e.thisAmount / 100)} (${
-      e.audience
-    } seats)\n`;
+    result += ` <tr><td>${e.playName}</td><td>${e.audience}</td><td>${format(e.thisAmount / 100)}</td></tr>\n`;
   });
-
-  result += `Amount owed is ${format(data.totalAmount / 100)}\n`;
-  result += `You earned ${data.volumeCredits} credits \n`;
+  result += `</table>\n`;
+  result += `<p>Amount owed is <em>${format(data.totalAmount / 100)}</em></p>\n`;
+  result += `<p>You earned <em>${data.volumeCredits}</em> credits</p>\n`;
 
   return result;
 }
@@ -90,6 +92,8 @@ function createStatementData (invoice, plays) {
 
   data.totalAmount = data.performances.reduce((total, perf) => total + perf.thisAmount, 0);
   data.volumeCredits = data.performances.reduce((total, perf) => total + perf.thisVolumeCredits, 0);
+
+  return data;
 }
 
 function statement(invoice, plays) {
@@ -97,6 +101,42 @@ function statement(invoice, plays) {
   return renderResult(data);
 }
 
+const invoice = {
+  'customer': 'BigCo',
+  'performances': [
+    {
+      'playID': 'hamlet',
+      'audience': 55,
+    },
+    {
+      'playID': 'as-like',
+      'audience': 35,
+    },
+    {
+      'playID': 'othello',
+      'audience': 40,
+    },
+  ],
+};
+
+const plays = {
+  'hamlet': {
+    'name': 'Hamlet',
+    'type': 'tragedy',
+  },
+  'as-like': {
+    'name': 'As You Like It',
+    'type': 'comedy',
+  },
+  'othello': {
+    'name': 'Othello',
+    'type': 'tragedy',
+  },
+};
+
+statementHtml(invoice, plays)
+
 module.exports = {
   statement,
+  statementHtml
 };
