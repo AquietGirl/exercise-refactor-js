@@ -1,6 +1,6 @@
-function getAmountByTypeAndAudience(performance) {
+function getAmountByTypeAndAudience(performance, play) {
   let thisAmount = 0;
-  switch (performance.play.type) {
+  switch (play.type) {
     case "tragedy":
       thisAmount = 40000;
       if (performance.audience > 30) {
@@ -15,15 +15,16 @@ function getAmountByTypeAndAudience(performance) {
       thisAmount += 300 * performance.audience;
       break;
     default:
-      throw new Error(`unknown type: ${performance.play.type}`);
+      throw new Error(`unknown type: ${play.type}`);
   }
   return thisAmount;
 }
 
-function updateVolumeCredits(performance, volumeCredits) {
-  volumeCredits += Math.max(performance.audience - 30, 0);
+function updateVolumeCredits(performance, play) {
+  let volumeCredits = 0;
 
-  if ("comedy" === performance.play.type)
+  volumeCredits += Math.max(performance.audience - 30, 0);
+  if ("comedy" === play.type)
     volumeCredits += Math.floor(performance.audience / 5);
 
   return volumeCredits;
@@ -38,8 +39,7 @@ function renderResult(data) {
 
   let result = `Statement for ${data.customer}\n`;
   data.performances.forEach((e) => {
-    console.log(e);
-    result += ` ${e.play.name}: ${format(e.thisAmount / 100)} (${
+    result += ` ${e.playName}: ${format(e.thisAmount / 100)} (${
       e.audience
     } seats)\n`;
   });
@@ -55,18 +55,21 @@ function statement(invoice, plays) {
     customer: invoice.customer,
     totalAmount: 0,
     volumeCredits: 0,
-    performances: [],
+    performances: [...(invoice.performances)],
   };
 
-  for (let perf of invoice.performances) {
-    perf.play = plays[perf.playID];
-    perf.thisAmount = getAmountByTypeAndAudience(perf);
+  data.performances = data.performances.map((perf) => {
+    return {
+      ...perf,
+      playName: plays[perf.playID].name,
+      thisAmount: getAmountByTypeAndAudience(perf, plays[perf.playID]),
+      thisVolumeCredits: updateVolumeCredits(perf, plays[perf.playID])
+    }
+  })
 
-    data.volumeCredits = updateVolumeCredits(perf, data.volumeCredits);
-    data.performances.push(perf);
-    data.totalAmount += perf.thisAmount;
-  }
-
+  data.totalAmount = data.performances.reduce((total, perf) => total + perf.thisAmount, 0);
+  data.volumeCredits = data.performances.reduce((total, perf) => total + perf.thisVolumeCredits, 0);
+  
   return renderResult(data);
 }
 
