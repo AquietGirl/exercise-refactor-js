@@ -22,7 +22,7 @@ test('Sample test', t => {
   t.deepEqual({a: 1}, {a: 1});
 });
 
-test('Sample test', t => {
+test('should return ', t => {
   //given
   const invoice = {
     'customer': 'BigCo',
@@ -52,8 +52,7 @@ test('Sample test', t => {
   //when
   const result = statement(invoice, plays);
 
-  
-
+  //then
   t.is(result, expect);
 });
 
