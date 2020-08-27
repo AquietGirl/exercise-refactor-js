@@ -1,6 +1,6 @@
-function getAmountByTypeAndAudience (play, performance) {
+function getAmountByTypeAndAudience (performance) {
   let thisAmount = 0;
-  switch (play.type) {
+  switch (performance.play.type) {
     case 'tragedy':
       thisAmount = 40000;
       if (performance.audience > 30) {
@@ -15,16 +15,16 @@ function getAmountByTypeAndAudience (play, performance) {
       thisAmount += 300 * performance.audience;
       break;
     default:
-      throw new Error(`unknown type: ${play.type}`);
+      throw new Error(`unknown type: ${performance.play.type}`);
   }
   return thisAmount;
 }
 
-function updateVolumeCredits (play, performance, volumeCredits) {
+function updateVolumeCredits (performance, volumeCredits) {
 
   volumeCredits += Math.max(performance.audience - 30, 0);
 
-  if ('comedy' === play.type) volumeCredits += Math.floor(performance.audience / 5);
+  if ('comedy' === performance.play.type) volumeCredits += Math.floor(performance.audience / 5);
 
   return volumeCredits;
 }
@@ -40,12 +40,12 @@ function statement (invoice, plays) {
   }).format;
 
   for (let perf of invoice.performances) {
-    const play = plays[perf.playID];
-    const thisAmount = getAmountByTypeAndAudience(play, perf)
+    perf.play = plays[perf.playID];
+    const thisAmount = getAmountByTypeAndAudience(perf)
 
-    volumeCredits = updateVolumeCredits(play, perf, volumeCredits);
+    volumeCredits = updateVolumeCredits(perf, volumeCredits);
 
-    result += ` ${play.name}: ${format(thisAmount / 100)} (${perf.audience} seats)\n`;
+    result += ` ${perf.play.name}: ${format(thisAmount / 100)} (${perf.audience} seats)\n`;
     totalAmount += thisAmount;
   }
   result += `Amount owed is ${format(totalAmount / 100)}\n`;
