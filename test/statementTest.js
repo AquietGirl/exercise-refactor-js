@@ -16,12 +16,6 @@ const plays = {
   },
 };
 
-test('Sample test', t => {
-  t.true(true);
-  t.is(1, 1);
-  t.deepEqual({a: 1}, {a: 1});
-});
-
 test('Customer BigCo has three performances and the audience is add more than 30 ', t => {
   //given
   const invoice = {
@@ -177,5 +171,16 @@ test('Customer BigCo has other type performance', t => {
   } catch(e) {
     t.is(e.message, 'unknown type: otherType')
   }
+});
+
+test('Customer BigCo without performance. ', t => {
+  const invoice = {
+    'customer': 'BigCo',
+    'performances': [],
+  };
+
+  const result = statement(invoice, plays);
+
+  t.is(result, 'Statement for BigCo\nAmount owed is $0.00\nYou earned 0 credits \n');
 });
 
