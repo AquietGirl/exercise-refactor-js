@@ -22,7 +22,7 @@ test('Sample test', t => {
   t.deepEqual({a: 1}, {a: 1});
 });
 
-test('should return ', t => {
+test('Customer BigCo has three performances and the audience is add more than 30 ', t => {
   //given
   const invoice = {
     'customer': 'BigCo',
@@ -48,6 +48,30 @@ test('should return ', t => {
   " Othello: $500.00 (40 seats)\n" + 
   "Amount owed is $1,730.00\n" +
   "You earned 47 credits \n";
+
+  //when
+  const result = statement(invoice, plays);
+
+  //then
+  t.is(result, expect);
+});
+
+test('Customer BigCo has one performance Hamlet and the audience is 55', t => {
+  //given
+  const invoice = {
+    'customer': 'BigCo',
+    'performances': [
+      {
+        'playID': 'hamlet',
+        'audience': 55,
+      }
+    ],
+  };
+
+  const expect =  "Statement for BigCo\n" +
+  " Hamlet: $650.00 (55 seats)\n" + 
+  "Amount owed is $650.00\n" +
+  "You earned 25 credits \n";
 
   //when
   const result = statement(invoice, plays);
